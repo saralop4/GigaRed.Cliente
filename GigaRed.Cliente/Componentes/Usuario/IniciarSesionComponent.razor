@@ -1,0 +1,111 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject SweetAlertService Swal
+@using GigaRed.Cliente.Dominio.Entidades
+@inject NavigationManager navigationManager
+@inject IAutenticacionServicio AutenticacionServicio
+@inject ApiAutenticacionStateProvider apiAutenticacion
+@using GigaRed.Cliente.Infraestructura.Providers
+
+<div class="row justify-content-center align-items-center">
+    <div class="col-md-6">
+        <div class="text-center">
+            @* <img src="img/Blazor.png" width="200" height="200" /> *@
+        </div>
+        <EditForm Model="@iniciarSesionModel" OnValidSubmit="@IniciarSesionUsuario">
+            <DataAnnotationsValidator />
+            <div class="mt-3">
+                <label>Correo</label>
+                <InputText @bind-Value="iniciarSesionModel.Correo" class="form-control" />
+                <ValidationMessage For="(() => iniciarSesionModel.Correo)" />
+                @if (errors != null && errors.Any(e => e.PropertyName == "Correo"))
+                {
+                    <span class="text-danger">@errors.First(e => e.PropertyName == "Correo").ErrorMessage</span>
+                }
+            </div>
+            <div class="mt-3">
+                <label>Ingrese contraseña</label>
+                <InputText @bind-Value="iniciarSesionModel.Contraseña" type="password" class="form-control" />
+                <ValidationMessage For="(() => iniciarSesionModel.Contraseña)" />
+                @if (errors != null && errors.Any(e => e.PropertyName == "Contraseña"))
+                {
+                    <span class="text-danger">@errors.First(e => e.PropertyName == "Contraseña").ErrorMessage</span>
+                }
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-success">Ingresar</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@if (errorMessage != null)
+
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@code {
+    private IniciarSesionDto iniciarSesionModel = new IniciarSesionDto();
+
+    private string? errorMessage;
+
+    private List<ErrorRegla>? errors;
+
+
+    private async Task IniciarSesionUsuario()
+
+    {
+        errorMessage = null;
+
+        errors = null;
+
+        try
+
+        {
+            var response = await AutenticacionServicio.IniciarSesion(iniciarSesionModel);
+
+            if (response.IsSuccess && response.Data != null)
+
+            {
+                apiAutenticacion.MarkUserAsAuthenticated(response.Data.Token);
+
+                navigationManager.NavigateTo("/dashboard");
+
+                await Swal.FireAsync(new SweetAlertOptions
+
+                    {
+                        Title = "Bienvenido al Sistema",
+                        Timer = 500
+                    });
+            }
+
+            else if (response.Errors != null)
+
+            {
+                errors = response.Errors;
+
+                await Swal.FireAsync("Oops...", response.Message, "error");
+
+            }
+
+            else
+
+            {
+                await Swal.FireAsync("Oops...", response.Message ?? "Usuario o clave incorrecta", "error");
+
+            }
+        }
+
+        catch (Exception ex)
+
+        {
+            errorMessage = ex.Message;
+
+        }
+
+        await Task.CompletedTask;
+
+
+
+    }
+}

@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GigaRed.Cliente.Infraestructura.Providers\GigaRed.Cliente.Infraestructura.Providers.csproj" />
+    <ProjectReference Include="..\GigaRed.Cliente.Interfaces\GigaRed.Cliente.Dominio.Interfaces.csproj" />
+  </ItemGroup>
+
+</Project>

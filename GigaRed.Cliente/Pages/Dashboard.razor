@@ -1,0 +1,17 @@
+﻿@page "/dashboard"
+@inject ApiAutenticacionStateProvider apiAutenticacion
+@using GigaRed.Cliente.Infraestructura.Providers
+
+<PageTitle>Dashboard</PageTitle>
+
+<h1>Hello, world!</h1>
+
+<h3>@nombreCompleto</h3>
+
+@code {
+    public string nombreCompleto { get; set; } = "";
+    protected override void OnInitialized()
+    {
+        nombreCompleto = "Administrador";
+    }
+}

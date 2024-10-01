@@ -7,13 +7,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.6.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.7" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="MudBlazor" Version="7.8.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Modelos\" />
     <Folder Include="Servicios\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GigaRed.Cliente.Infraestructura.Providers\GigaRed.Cliente.Infraestructura.Providers.csproj" />
+    <ProjectReference Include="..\GigaRed.Cliente.Infraestructura.Servicios\GigaRed.Cliente.Infraestructura.Servicios.csproj" />
+    <ProjectReference Include="..\GigaRed.Cliente.Interfaces\GigaRed.Cliente.Dominio.Interfaces.csproj" />
+    <ProjectReference Include="..\GigaRed.Cliente.Servicios\GigaRed.Cliente.Aplicacion.Servicios.csproj" />
   </ItemGroup>
 
 </Project>
