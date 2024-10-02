@@ -1,5 +1,10 @@
 ﻿@inject NavigationManager navigation
 @inject IAutenticacionServicio AutenticacionServicio
+@inject ITokenStorage tokenStorage
+@using Newtonsoft.Json
+@using System.IdentityModel.Tokens.Jwt
+@using System.Security.Claims
+@using GigaRed.Cliente.Dominio.Entidades
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -14,40 +19,139 @@
     <nav class="flex-column">
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
+            <NavLink class="nav-link" href="/">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Panel
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+        @if (Menus != null && Menus.Any())
+
+        {
+            @foreach (var menu in Menus)
+
+            {
+                <div class="nav-item px-3">
+                    <a href="javascript:void(0)" class="nav-link" @onclick="() => ToggleMenu(menu)">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> @menu.NombreOpcion
+                    </a>
+
+                    @if (menuAbierto == menu)
+
+                    {
+                        <!-- Submenú de Aplicaciones -->
+                        <div class="nav-item px-3">
+                            <a href="javascript:void(0)" class="nav-link" @onclick="() => ToggleSubMenu(menu)">
+                                <span class="bi bi-app-nav-menu" aria-hidden="true"></span> @menu.NombreAplicacion
+                            </a>
+
+                            @if (subMenuAbierto == menu)
+
+                            {
+                                <!-- Submenú de Páginas -->
+                                @if (!string.IsNullOrEmpty(menu.NombrePagina))
+
+                                {
+                                    <div class="nav-item px-3">
+                                        <NavLink class="nav-link" href="@menu.RutaPagina.TrimStart('/')">
+                                            <span class="bi bi-page-nav-menu" aria-hidden="true"></span> @menu.NombrePagina
+                                        </NavLink>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        }
+
+        else
+        {
+            <div class="nav-item px-3">
+                <span>No se encontraron menús disponibles.</span>
+            </div>
+        }
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" style="cursor:pointer" @onclick="CerrarSesion">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Cerrar Sesion
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Cerrar Sesión
             </NavLink>
         </div>
-
     </nav>
-
 </div>
 
 @code {
     private bool collapseNavMenu = true;
 
+    private List<MenuDto> Menus = new List<MenuDto>();
+    private MenuDto? menuAbierto = null; // Controla qué menú está abierto
+    private MenuDto? subMenuAbierto = null; // Controla qué submenú de aplicación está abierto
+
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtener el token desde el ITokenStorage
+        var token = await tokenStorage.ObtenerToken();
+
+        // Decodificar el token
+        var handler = new JwtSecurityTokenHandler();
+
+        var jsonToken = handler.ReadJwtToken(token);
+
+        // Extraer los claims del token
+         var claims = jsonToken.Claims;
+
+         // Obtener el claim de los menús
+         var menuClaim = claims.FirstOrDefault(c => c.Type == "Menus");
+        
+         if (menuClaim != null)
+         {
+            var menuJson = menuClaim.Value;
+
+            // Deserializar los menús
+            Menus = JsonConvert.DeserializeObject<List<MenuDto>>(menuJson);
+         }         
+
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
     private async Task CerrarSesion()
     {
-         await AutenticacionServicio.CerrarSesion();
-
+        await AutenticacionServicio.CerrarSesion();
+        await tokenStorage.LimpiarToken();
         navigation.NavigateTo("/");
+    }
+
+    private void ToggleMenu(MenuDto menu)
+    {
+        // Alterna el estado del menú de opciones
+        if (menuAbierto == menu)
+        {
+            // Colapsar el menú y cualquier submenú que esté abierto
+            menuAbierto = null;
+            subMenuAbierto = null; // Cerrar también el submenú de aplicaciones
+        }else
+        {
+            // Abrir el menú
+            menuAbierto = menu;
+        }
+    }
+
+    private void ToggleSubMenu(MenuDto menu)
+    {
+        // Alterna el estado del submenú de aplicaciones
+        if (subMenuAbierto == menu)
+        {
+            subMenuAbierto = null;
+        }
+        else
+        {
+            subMenuAbierto = menu;
+        }
+
     }
 }
