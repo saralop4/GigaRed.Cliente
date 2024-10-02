@@ -23,10 +23,8 @@ namespace GigaRed.Cliente.Aplicacion.Servicios
 
         public async Task<ApiResponse<TokenDto>> IniciarSesion(IniciarSesionDto loginDto)
         {
-            // Realizas la petición HTTP al endpoint de inicio de sesión
             var httpResponse = await _httpClient.PostAsJsonAsync("Api/V1/Usuario/IniciarSesion", loginDto);
 
-            // Verificas si la respuesta fue exitosa
             if (httpResponse.IsSuccessStatusCode)
             {
                 // Deserializas la respuesta como ApiResponse<TokenDto>
