@@ -1,0 +1,108 @@
+﻿@inject NavigationManager navigationManager
+@inject IAutenticacionServicio AutenticacionServicio
+@inject ITokenStorage tokenStorage
+@using Newtonsoft.Json
+@using System.IdentityModel.Tokens.Jwt
+@using GigaRed.Cliente.Dominio.Entidades
+
+@code {
+    protected override async Task OnInitializedAsync()
+
+    {
+
+        await VerificarAutenticacion();
+
+    }
+
+
+
+    private async Task VerificarAutenticacion()
+
+    {
+
+        // Obtener el token desde ITokenStorage
+
+        var token = await tokenStorage.ObtenerToken();
+
+
+
+        if (string.IsNullOrEmpty(token))
+
+        {
+
+            navigationManager.NavigateTo("/");
+
+            return;
+
+        }
+
+
+
+        // Decodificar el token
+
+        var handler = new JwtSecurityTokenHandler();
+
+        var jsonToken = handler.ReadJwtToken(token);
+
+
+
+        // Extraer los claims del token
+
+        var claims = jsonToken.Claims;
+
+
+
+        // Obtener el claim que contiene los menús
+
+        var menuClaim = claims.FirstOrDefault(c => c.Type == "Menus");
+
+        if (menuClaim != null)
+
+        {
+
+            // Desencriptar y deserializar el JSON de menús
+
+            var menuJson = menuClaim.Value;
+
+            var menus = JsonConvert.DeserializeObject<List<MenuDto>>(menuJson);
+
+
+
+            // Obtener la URL actual
+
+            var currentUri = new Uri(navigationManager.Uri);
+
+            string paginaActual = currentUri.LocalPath.TrimStart('/');
+
+
+
+            // Verificar si la página actual está en los menús del usuario
+
+            if (!menus.Any(menu => menu.RutaPagina.TrimStart('/').Equals(paginaActual, StringComparison.OrdinalIgnoreCase)))
+
+            {
+
+                // Redirigir a "noautorizado" si la página actual no está en los menús permitidos
+
+
+
+                navigationManager.NavigateTo("/Protected");
+
+
+
+            }
+
+        }
+
+        else
+
+        {
+
+            // Si no se encuentran menús, redirigir a la página principal
+
+            navigationManager.NavigateTo("/");
+
+        }
+
+    }
+}
