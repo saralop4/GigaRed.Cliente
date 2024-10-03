@@ -19,7 +19,7 @@
     <nav class="flex-column">
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/">
+            <NavLink class="nav-link" href="Panel">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Panel
             </NavLink>
         </div>
@@ -65,6 +65,7 @@
         }
 
         else
+
         {
             <div class="nav-item px-3">
                 <span>No se encontraron menús disponibles.</span>
@@ -82,75 +83,196 @@
 @code {
     private bool collapseNavMenu = true;
 
+
+
     private List<MenuDto> Menus = new List<MenuDto>();
+
     private MenuDto? menuAbierto = null; // Controla qué menú está abierto
+
     private MenuDto? subMenuAbierto = null; // Controla qué submenú de aplicación está abierto
+
+
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
+
+
     protected override async Task OnInitializedAsync()
+
     {
+
+        await CargarMenus();
+
+    }
+
+
+
+    private async Task CargarMenus()
+
+    {
+
         // Obtener el token desde el ITokenStorage
+
         var token = await tokenStorage.ObtenerToken();
 
-        // Decodificar el token
-        var handler = new JwtSecurityTokenHandler();
 
-        var jsonToken = handler.ReadJwtToken(token);
 
-        // Extraer los claims del token
-         var claims = jsonToken.Claims;
+        if (string.IsNullOrEmpty(token))
 
-         // Obtener el claim de los menús
-         var menuClaim = claims.FirstOrDefault(c => c.Type == "Menus");
-        
-         if (menuClaim != null)
-         {
-            var menuJson = menuClaim.Value;
+        {
 
-            // Deserializar los menús
-            Menus = JsonConvert.DeserializeObject<List<MenuDto>>(menuJson);
-         }         
+            // Si no hay token, redirigir al login
+
+            navigation.NavigateTo("/");
+
+            return;
+
+        }
+
+
+
+        try
+
+        {
+
+            // Decodificar el token
+
+            var handler = new JwtSecurityTokenHandler();
+
+            var jsonToken = handler.ReadJwtToken(token);
+
+
+
+            // Extraer los claims del token
+
+            var claims = jsonToken.Claims;
+
+
+
+            // Obtener el claim de los menús
+
+            var menuClaim = claims.FirstOrDefault(c => c.Type == "Menus");
+
+
+
+            if (menuClaim != null)
+
+            {
+
+                var menuJson = menuClaim.Value;
+
+
+
+                // Deserializar los menús
+
+                Menus = JsonConvert.DeserializeObject<List<MenuDto>>(menuJson);
+
+            }
+
+            else
+
+            {
+
+                // Si no hay menús en el token, redirigir al login
+
+                navigation.NavigateTo("/");
+
+            }
+
+        }
+
+        catch (ArgumentException ex)
+
+        {
+
+            // Manejar error si el token no es válido y redirigir al login
+
+            Console.WriteLine($"Error decodificando el token: {ex.Message}");
+
+            navigation.NavigateTo("/");
+
+        }
 
     }
+
+
 
     private void ToggleNavMenu()
+
     {
+
         collapseNavMenu = !collapseNavMenu;
+
     }
+
+
 
     private async Task CerrarSesion()
+
     {
+
         await AutenticacionServicio.CerrarSesion();
+
         await tokenStorage.LimpiarToken();
+
         navigation.NavigateTo("/");
+
     }
+
+
 
     private void ToggleMenu(MenuDto menu)
+
     {
+
         // Alterna el estado del menú de opciones
+
         if (menuAbierto == menu)
+
         {
+
             // Colapsar el menú y cualquier submenú que esté abierto
+
             menuAbierto = null;
+
             subMenuAbierto = null; // Cerrar también el submenú de aplicaciones
-        }else
-        {
-            // Abrir el menú
-            menuAbierto = menu;
+
         }
+
+        else
+
+        {
+
+            // Abrir el menú
+
+            menuAbierto = menu;
+
+        }
+
     }
 
+
+
     private void ToggleSubMenu(MenuDto menu)
+
     {
+
         // Alterna el estado del submenú de aplicaciones
+
         if (subMenuAbierto == menu)
+
         {
+
             subMenuAbierto = null;
+
         }
+
         else
+
         {
+
             subMenuAbierto = menu;
+
         }
 
     }

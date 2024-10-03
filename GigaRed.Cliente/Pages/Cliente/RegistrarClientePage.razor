@@ -1,17 +1,18 @@
 ﻿ @page "/RegistrarClientes" 
+ @using GigaRed.Cliente.Componentes.Shared
+ @inherits AutenticacionBaseComponent
  @using GigaRed.Cliente.Componentes.Cliente
-@* @inherits AuthenticatedPageBase *@
 
 
-@* <AuthorizeView>
+<AuthorizeView>
 
     <Authorized>
-        <h3>Registrar Cliente</h3>
+        <PageTitle>Registrar Cliente</PageTitle>
+        <RegistrarClienteComponent />
+
     </Authorized>
 
-</AuthorizeView> *@
-
-<RegistrarClienteComponent/>
+</AuthorizeView>
 
 @code {
 
