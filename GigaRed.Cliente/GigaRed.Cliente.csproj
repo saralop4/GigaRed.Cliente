@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Servicios\**" />
+    <Content Remove="Servicios\**" />
+    <EmbeddedResource Remove="Servicios\**" />
+    <None Remove="Servicios\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
@@ -17,13 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Servicios\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GigaRed.Cliente.AlmacenamientoLocal\GigaRed.Cliente.Infraestructura.AlmacenamientoLocal.csproj" />
     <ProjectReference Include="..\GigaRed.Cliente.Infraestructura.Providers\GigaRed.Cliente.Infraestructura.Providers.csproj" />
-    <ProjectReference Include="..\GigaRed.Cliente.Infraestructura.Servicios\GigaRed.Cliente.Infraestructura.Servicios.csproj" />
     <ProjectReference Include="..\GigaRed.Cliente.Interfaces\GigaRed.Cliente.Dominio.Interfaces.csproj" />
     <ProjectReference Include="..\GigaRed.Cliente.Servicios\GigaRed.Cliente.Aplicacion.Servicios.csproj" />
   </ItemGroup>

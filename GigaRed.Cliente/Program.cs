@@ -2,8 +2,8 @@ using Blazored.LocalStorage;
 using CurrieTechnologies.Razor.SweetAlert2;
 using GigaRed.Cliente.Aplicacion.Servicios;
 using GigaRed.Cliente.Dominio.Interfaces;
+using GigaRed.Cliente.Infraestructura.AlmacenamientoLocal;
 using GigaRed.Cliente.Infraestructura.Providers;
-using GigaRed.Cliente.Infraestructura.Servicios;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -24,7 +24,7 @@ namespace GigaRed.Cliente
             builder.Services.AddScoped<ITokenStorage, LocalTokenStorage>();
             builder.Services.AddBlazoredLocalStorage();
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5043/") }); //url donde corre la apigateway
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5094/") }); //url donde corre la apigateway
 
             builder.Services.AddAuthorizationCore();
             builder.Services.AddSweetAlert2();
